@@ -3,34 +3,61 @@ const server = http.createServer()
 server.listen(8282)
 const querystring = require('querystring') // 引入 querystring 模块用来看 url 的 query
 
+const users = [];  // 做一个全局数组
+
 server.on('request', (request, response) => { // 受到请求后调用一次
     // console.log(request.url)  // 这里会打印出 /，实际上是 url Path 后的东西，如果我在 loaclhost:8282 后面写上 show-me-something，后台就会返回 /show-me-something，再加点东西也是同理的
     const url = request.url
+
+    const path = url.substr(0, url.indexOf('?'))
 
     const queryString = url.substr(url.indexOf('?') + 1, url.length)
 
     const query = querystring.parse(queryString)
 
     console.log(query)
+    console.log(url)
+    console.log(path)
 
-    // console.log(url)
+    // 做一个请求例子
+    // 其他方法也是一样的
+    switch (path) {
+        case '/user':
+            switch (request.method) {
+                case 'GET':
+                    response.statusCode = 200
+                    response.end(JSON.stringify(users))
+                    break;
+                case 'POST':
+                    const contentType = request.headers['content-type']  // 看请求头的属性
 
-    let responseStr // 定义返回字符串，收到 url 做出不同的返回值
+                    if (contentType !== 'application/json') {  // 不是json就400
+                        response.statusCode = 400
+                        response.end('error')
+                    }
 
-    if (url.indexOf('/hello') > -1) { // 记得加前缀 /
-        responseStr = 'hi there'
-        if (query.i_need_money === 'true' && Number(query.how_much) > 500) {  // 这里做一个判断他是不是要钱，值得一提的是这里这个 'true'，因为这里是没有类型的所以要用这个 'true'
-            responseStr = 'go away'
-        } else {
-            responseStr = 'ok, here you are'
-        }
-    } else if (url.indexOf('/bye') > -1) {  // 也可以用正则，不过如果写不好就会比 indexOf 要慢很多很多...
-        responseStr = 'see ya next time'
-    } else {
-        responseStr = 'i cant understand what you are saying'
+                    let requestBodyStr = ''
+                    request.on('data', (data) => {
+                        requestBodyStr += data.toString()  // 把json变成字符串
+                    })
+                    request.on('end', () => {
+                        const user = JSON.parse(requestBodyStr)  // 解析josn字符串
+                        users.push(user)
+                        response.statusCode = 200
+                        response.end(JSON.stringify(user))
+                    })
+
+                    // const user = { name: Math.floor(Math.random() * 100) }
+                    // users.push(user)
+                    // response.statusCode = 200
+                    // response.end(JSON.stringify(user))
+                    break
+            }
+            break
+        default:
+            response.statusCode = 404
+            response.end('NOT_FOUND')
+            break
     }
 
-    response.statusCode = 200
-    response.end(responseStr)
-    // response.end('this is my first http server')
 })
