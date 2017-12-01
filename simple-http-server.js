@@ -2,6 +2,7 @@ const http = require('http') // http 模块是一定的
 const server = http.createServer()
 server.listen(8282)
 const querystring = require('querystring') // 引入 querystring 模块用来看 url 的 query
+const fs = require('fs')
 
 const users = []; // 做一个全局数组
 
@@ -58,6 +59,10 @@ server.on('request', (request, response) => { // 受到请求后调用一次
                     // response.end(JSON.stringify(user))
                     break
             }
+            break
+        case '/test.html':
+            response.statusCode = 200
+            fs.createReadStream('./test.html').pipe(response)
             break
         default:
             response.statusCode = 404
