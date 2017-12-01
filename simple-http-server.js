@@ -31,14 +31,16 @@ server.on('request', (request, response) => { // 受到请求后调用一次
                 case 'POST':
                     const contentType = request.headers['content-type'] // 看请求头的属性
 
-                    if (contentType !== 'application/json') { // 不是json就400
-                        response.statusCode = 400
-                        response.end('error')
-                    }
+                    // if (contentType !== 'application/json') { // 不是json就400
+                    //     response.statusCode = 400
+                    //     response.end('error')
+                    // }
 
+                    let dataCount = 0
                     let requestBodyStr = ''
                     request.on('data', (data) => { // 当这个请求收到数据的时候
                         // requestBodyStr += data.toString() // 把json变成字符串
+                        dataCount++
                         console.log(data)
                     })
                     request.on('end', () => { // 当发过来的这个请求体已经结束的时候
@@ -46,7 +48,8 @@ server.on('request', (request, response) => { // 受到请求后调用一次
                         // users.push(user)
                         // response.statusCode = 200
                         // response.end(JSON.stringify(user))
-                        response.end('done')
+                        console.log(dataCount) // 看看一个文件要吃多少口
+                        response.end(dataCount + '')
                     })
 
                     // const user = { name: Math.floor(Math.random() * 100) }
