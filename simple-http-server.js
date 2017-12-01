@@ -32,10 +32,10 @@ server.on('request', (request, response) => { // 受到请求后调用一次
                 case 'POST':
                     const contentType = request.headers['content-type'] // 看请求头的属性
 
-                    if (contentType !== 'application/json') { // 不是json就400
-                        response.statusCode = 400
-                        response.end('error')
-                    }
+                    // if (contentType !== 'application/json') { // 不是json就400
+                    //     response.statusCode = 400
+                    //     response.end('error')
+                    // }
 
                     let dataCount = 0
                     let requestBodyStr = ''
@@ -45,7 +45,7 @@ server.on('request', (request, response) => { // 受到请求后调用一次
                         // console.log(data)
                     })
                     request.on('end', () => { // 当发过来的这个请求体已经结束的时候
-                        const user = JSON.parse(requestBodyStr) // 解析josn字符串
+                        const user = querystring.parse(requestBodyStr) // 解析josn字符串
                         users.push(user)
                         response.statusCode = 200
                         response.end(JSON.stringify(user))
